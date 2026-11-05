@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Blackjack AI Assistant</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    :root{color-scheme:dark;--bg:#0b1220;--panel:#172235;--panel2:#223149;--text:#f4f7fb;--muted:#aab8ca;--line:#30415a;--green:#36c98f;--red:#ff7272;--gold:#f2c66d}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#101827,#0b1220 45%);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+    main{max-width:560px;margin:0 auto;padding:18px 0 32px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-weight:800;letter-spacing:.06em;font-size:14px}.tag{font-size:11px;color:var(--green);border:1px solid #286d57;padding:6px 9px;border-radius:99px}
+    h1{font-size:27px;line-height:1.1;margin:0 0 7px}.sub{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 20px}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:15px}.label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.value{font-size:34px;font-weight:800;margin-top:5px;font-variant-numeric:tabular-nums}.positive{color:var(--green)}.negative{color:var(--red)}
+    .section{margin-top:15px}.section h2{font-size:15px;margin:0 0 10px}.deckrow{display:flex;align-items:center;gap:12px}.deckrow select{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:12px;border-radius:11px;font-size:16px}
+    .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.card{border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font-size:19px;font-weight:750;padding:14px 0;min-height:54px}.card:active{transform:scale(.97);background:#344762}.card.red{color:#ff9292}.card small{display:block;font-size:9px;color:var(--muted);font-weight:500;margin-top:3px}
+    .actions{display:flex;gap:9px;margin-top:14px}.btn{flex:1;border:1px solid var(--line);border-radius:11px;background:var(--panel2);color:var(--text);padding:12px;font-size:14px;font-weight:650}.btn.primary{background:#176c51;border-color:#238b69}.btn:active{opacity:.8}
+    .status{margin-top:13px;background:#111c2c;border-radius:12px;padding:12px;color:var(--muted);font-size:12px;line-height:1.5}.status strong{color:var(--text)}.note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:15px}.history{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:28px}.chip{padding:5px 8px;border-radius:8px;background:#26364d;font-size:12px}.footer{text-align:center;color:#8291a6;font-size:10px;margin-top:20px}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top"><div class="brand">♠ BLACKJACK AI ASSISTANT</div><div class="tag">VERSION 1.0 · TEST</div></div>
+  <h1>Korttæller</h1>
+  <p class="sub">Registrér de kort, der er blevet vist i skoen. Appen beregner Hi‑Lo running count og true count.</p>
+  <div class="stats">
+    <div class="panel"><div class="label">Running count</div><div class="value" id="running">0</div></div>
+    <div class="panel"><div class="label">True count</div><div class="value" id="true">0.00</div></div>
+  </div>
+  <div class="section panel">
+    <div class="deckrow"><div style="flex:1"><div class="label">Antal kortspil i skoen</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Vælg bordets antal decks</div></div>
+      <select id="decks"><option value="1">1 deck</option><option value="2">2 decks</option><option value="4">4 decks</option><option value="6" selected>6 decks</option><option value="8">8 decks</option></select>
+    </div>
+    <div class="status" id="shoeStatus">Registrerede kort: <strong>0</strong> · Anslåede decks tilbage: <strong>6.00</strong></div>
+  </div>
+  <div class="section">
+    <h2>Tryk på det kort, der er blevet vist</h2>
+    <div class="cards" id="cardButtons"></div>
+    <div class="actions"><button class="btn" id="undo">Fortryd sidste</button><button class="btn" id="reset">Nulstil sko</button></div>
+    <div class="label" style="margin-top:15px">Senest registrerede kort</div><div class="history" id="history"><span class="chip">Ingen kort endnu</span></div>
+  </div>
+  <div class="status" style="margin-top:16px"><strong>Sådan læses tællingen</strong><br>Positiv true count betyder, at der relativt er flere høje kort tilbage end ved start. Det er kun et estimat – ikke en garanti for gevinst.</div>
+  <p class="note">Vigtigt: Korttælling har kun mulig værdi, når tidligere kort forbliver relevante for den resterende sko. Ved RNG-spil, der blander efter hver hånd, giver denne tæller ingen brugbar fordel. Følg altid casinoets regler; brug ikke appen, hvor hjælpemidler er forbudt.</p>
+  <div class="footer">Lokal prototype · Data gemmes ikke og sendes ingen steder</div>
+</main>
+<script>
+const ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const history=[];let running=0;
+const $=id=>document.getElementById(id);
+const hiLo=card=>['2','3','4','5','6'].includes(card)?1:['10','J','Q','K','A'].includes(card)?-1:0;
+function decks(){return Number($('decks').value)}
+function add(card){if(history.length>=decks()*52){alert('Alle kort i den valgte sko er allerede registreret.');return;}history.push(card);running+=hiLo(card);render();}
+function render(){const remaining=Math.max(0,decks()-history.length/52);const tc=remaining>0?running/remaining:0;$('running').textContent=(running>0?'+':'')+running;$('running').className='value '+(running>0?'positive':running<0?'negative':'');$('true').textContent=tc.toFixed(2);$('true').className='value '+(tc>0?'positive':tc<0?'negative':'');$('shoeStatus').innerHTML=`Registrerede kort: <strong>${history.length}</strong> · Anslåede decks tilbage: <strong>${remaining.toFixed(2)}</strong>`;$('history').innerHTML=history.length?history.slice(-18).reverse().map(c=>`<span class="chip">${c}</span>`).join(''):'<span class="chip">Ingen kort endnu</span>';}
+const buttons=$('cardButtons');ranks.forEach(c=>{const b=document.createElement('button');b.className='card '+(['10','J','Q','K','A'].includes(c)?'red':'');b.innerHTML=c+`<small>${hiLo(c)>0?'+1':hiLo(c)<0?'−1':'0'}</small>`;b.addEventListener('click',()=>add(c));buttons.appendChild(b)});
+$('undo').addEventListener('click',()=>{const c=history.pop();if(c)running-=hiLo(c);render()});$('reset').addEventListener('click',()=>{if(confirm('Nulstil alle registrerede kort?')){history.length=0;running=0;render()}});$('decks').addEventListener('change',()=>{history.length=0;running=0;render()});render();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
